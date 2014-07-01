@@ -1,0 +1,15 @@
+# IDE
+.idea/
+*.iml
+
+# Build and wrappers
+gradle/
+.gradle/
+out/
+build/
+gradlew*
+.gradletasknamecache
+
+# Temporary
+*.iml
+
