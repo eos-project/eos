@@ -3,8 +3,11 @@ package eos.server.netty.rest;
 import eos.EosController;
 import eos.EosRegistry;
 import eos.render.RenderableList;
-import eos.server.*;
+import eos.server.EntryNotFoundException;
+import eos.server.WrongRequestException;
+import eos.server.WrongTokenException;
 import eos.type.EosKey;
+import eos.type.EosKeyResolver;
 import eos.type.Logger;
 import eos.type.LongIncrement;
 import io.netty.bootstrap.ServerBootstrap;
@@ -31,29 +34,17 @@ public class RestServer implements Runnable
     final EosController metricController;
     final Logger logger;
     final LongIncrement restServerRequests;
+    final EosKeyResolver resolver;
 
-    public RestServer(String host, int port, EosRegistry internalMetrics, EosController metricController) throws Exception
+    public RestServer(String host, int port, EosRegistry internalMetrics, EosController metricController, EosKeyResolver resolver) throws Exception
     {
         this.host             = host;
         this.port             = port;
         this.metricController = metricController;
+        this.resolver         = resolver;
         // Internal metrics
-        this.logger           = (Logger) internalMetrics.take(
-                new EosKey(
-                        EosKey.Schema.log,
-                        "eos.core.server.rest",
-                        InetAddress.getLocalHost().getHostName(),
-                        "eos"
-                )
-        );
-        restServerRequests = (LongIncrement) internalMetrics.take(
-                new EosKey(
-                        EosKey.Schema.inc,
-                        "eos.core.server.rest.requests",
-                        InetAddress.getLocalHost().getHostName(),
-                        "eos"
-                )
-        );
+        this.logger             = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log, "eos.core.server.rest", null));
+        this.restServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.rest.requests", null));
         this.logger.log("New instance of RestServer created");
     }
 
@@ -115,7 +106,7 @@ public class RestServer implements Runnable
                         if ((m = urlGetMetric.matcher(url)).find()) {
                             String metricName = m.group(1);
                             response = new Success(
-                                    metricController.getMetricRead(token, EosKey.parse(metricName)).export()
+                                    metricController.getMetricRead(token, resolver.resolve(metricName)).export()
                             );
                         } else if ((m = urlGetList.matcher(url)).find()) {
                             String metricPattern = m.group(1);

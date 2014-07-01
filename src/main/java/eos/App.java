@@ -1,16 +1,20 @@
 package eos;
 
+import eos.access.GrantAllTokenRepository;
 import eos.client.CliStream;
 import eos.client.netty.TcpClient;
 import eos.filters.FilterFactory;
+import eos.observers.ObservingPool;
+import eos.observers.SyncronousObservingPool;
 import eos.render.out.Console;
 import eos.server.CommonEosController;
 import eos.server.CommonEosRegistry;
-import eos.access.GrantAllTokenRepository;
 import eos.server.netty.rest.RestServer;
 import eos.server.netty.tcp.TcpServer;
 import eos.server.netty.udp.UdpServer;
-import eos.observers.GeneralObservingPool;
+import eos.type.CachedEosKeyResolver;
+import eos.type.EosKeyCombinator;
+import eos.type.EosKeyResolver;
 import eos.type.KeyFilter;
 
 import java.util.Arrays;
@@ -39,7 +43,7 @@ public class App implements Runnable
     /**
      * Observers pool
      */
-    final GeneralObservingPool observerMaster;
+    final ObservingPool observerMaster;
     /**
      * Metric registry
      */
@@ -48,6 +52,14 @@ public class App implements Runnable
      * Main controller
      */
     final EosController metricController;
+    /**
+     * Eos key resolver
+     */
+    final EosKeyResolver resolver;
+    /**
+     * Eos key combinator
+     */
+    final EosKeyCombinator combinator;
 
     /**
      * Startup method
@@ -72,11 +84,16 @@ public class App implements Runnable
         // Creating console for output
         this.stdout = new Console();
 
+        // Creating resolver & combinator
+        CachedEosKeyResolver cachedEosKeyResolver = new CachedEosKeyResolver(997, 997);
+        this.resolver   = cachedEosKeyResolver;
+        this.combinator = cachedEosKeyResolver;
+
         // Creating main eos registry
-        this.metricRegistry   = new CommonEosRegistry(1000);
+        this.metricRegistry   = new CommonEosRegistry(1000, this.combinator);
 
         // Creating main observer and registering a registry
-        this.observerMaster   = new GeneralObservingPool();
+        this.observerMaster   = new SyncronousObservingPool();
         this.observerMaster.register(metricRegistry);
         this.observerMaster.register(metricRegistry);
 
@@ -215,7 +232,7 @@ public class App implements Runnable
     void rest(int port) throws Exception
     {
         stdout.println("Starting REST server");
-        (new Thread(new RestServer("localhost", port, metricRegistry,  metricController))).start();
+        (new Thread(new RestServer("localhost", port, metricRegistry,  metricController, resolver))).start();
         stdout.println("REST server listening on " + port);
     }
 
@@ -228,7 +245,7 @@ public class App implements Runnable
     void udp(int port) throws Exception
     {
         stdout.println("Starting UDP listener");
-        (new Thread(new UdpServer("localhost", port, metricRegistry,  metricController))).start();
+        (new Thread(new UdpServer("localhost", port, metricRegistry,  metricController, resolver))).start();
         stdout.println("UDP server listening on " + port);
     }
 
@@ -248,7 +265,7 @@ public class App implements Runnable
     void connect(String host, int port, KeyFilter filter) throws Exception
     {
         stdout.println("Starting replica TCP client");
-        (new Thread(new TcpClient(metricRegistry, observerMaster, host, port, filter))).start();
+        (new Thread(new TcpClient(metricRegistry, observerMaster, host, port, filter, resolver))).start();
         stdout.println("TCP client online");
     }
 

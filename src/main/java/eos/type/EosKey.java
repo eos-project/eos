@@ -1,12 +1,5 @@
 package eos.type;
 
-import eos.collections.CalculationCache;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Structure, used for metrics key
  */
@@ -19,9 +12,6 @@ public class EosKey
 
     final String url;
 
-    static final Pattern KeySchemaPattern     = Pattern.compile("^([a-z\\-]*)://([^:@]+)");
-    static final Pattern ServerAndTagsPattern = Pattern.compile("([:@])([^:@/]+)");
-
     /**
      * Cache for faster keys resolving
      */
@@ -31,54 +21,6 @@ public class EosKey
      * Precalculated hash code
      */
     final int hash;
-
-    /**
-     * Parses incoming string and produces EosKey
-     *
-     * @param url String to parse
-     * @return Generated from url EosKey
-     */
-    public static EosKey parse(String url)
-    {
-        if (url == null) {
-            throw new NullPointerException("url");
-        }
-
-        // Checking cache
-        int cacheIndex = url.hashCode() % cache.length;
-        if (cacheIndex < 0) cacheIndex = 0 - cacheIndex;
-        if (cache[cacheIndex] != null && url.equals(cache[cacheIndex].url)) {
-            return cache[cacheIndex];
-        }
-
-
-        Matcher matcher = KeySchemaPattern.matcher(url);
-        if (!matcher.find()) {
-            throw new IllegalArgumentException("Unknown format");
-        }
-
-        Schema schema     = Schema.valueOf(matcher.group(1));
-        String key        = matcher.group(2);
-        String server     = null;
-        List<String> tags = new ArrayList<>();
-        matcher = ServerAndTagsPattern.matcher(url);
-        while (matcher.find()) {
-            if (matcher.group(1).equals(":")) {
-                tags.add(matcher.group(2));
-            } else if (matcher.group(1).equals("@")) {
-                if (server == null) {
-                    server = matcher.group(2);
-                } else {
-                    throw new IllegalArgumentException("Multiple server definitions");
-                }
-            }
-        }
-
-        EosKey k = new EosKey(schema, key, server, tags.toArray(new String[tags.size()]));
-        // Putting into cache
-        cache[cacheIndex] = k;
-        return k;
-    }
 
     /**
      * Constructor
@@ -145,6 +87,14 @@ public class EosKey
      * @return Current server
      */
     public String getServer() { return server; }
+
+    /**
+     * @return All tags
+     */
+    public String[] getTags()
+    {
+        return tags;
+    }
 
     /**
      * @return True if current key has server in it's definition

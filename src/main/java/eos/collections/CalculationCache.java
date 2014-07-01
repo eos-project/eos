@@ -9,6 +9,7 @@ package eos.collections;
 public class CalculationCache<K, V>
 {
     final int capacity;
+    final Object[] keys;
     final Object[] cache;
     final Supplier<K, V> supplier;
 
@@ -22,6 +23,7 @@ public class CalculationCache<K, V>
     {
         this.capacity = capacity;
         this.supplier = supplier;
+        this.keys     = new Object[capacity];
         this.cache    = new Object[capacity];
     }
 
@@ -34,7 +36,11 @@ public class CalculationCache<K, V>
     @SuppressWarnings("unchecked")
     public V get(K in) {
         int hash = in.hashCode() % capacity;
-        if (cache[hash] == null) {
+        if (hash < 0) {
+            hash = 0 - hash;
+        }
+        if (cache[hash] == null || !keys[hash].equals(in)) {
+            keys[hash]  = in;
             cache[hash] = supplier.calculate(in);
         }
 

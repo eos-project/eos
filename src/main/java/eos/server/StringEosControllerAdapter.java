@@ -5,21 +5,24 @@ import eos.access.AccessTokenRepository;
 import eos.observers.IncrementObserver;
 import eos.observers.LoggersObserver;
 import eos.type.EosKey;
+import eos.type.EosKeyResolver;
 
 public class StringEosControllerAdapter
 {
-    private final EosController ctrl;
-    private final AccessTokenRepository tokens;
+    final EosController ctrl;
+    final AccessTokenRepository tokens;
+    final EosKeyResolver resolver;
 
-    public StringEosControllerAdapter(EosController ctrl, AccessTokenRepository tokens) {
-        this.ctrl   = ctrl;
-        this.tokens = tokens;
+    public StringEosControllerAdapter(EosController ctrl, AccessTokenRepository tokens, EosKeyResolver resolver) {
+        this.ctrl     = ctrl;
+        this.tokens   = tokens;
+        this.resolver = resolver;
     }
 
     public void process(String[] args) throws WrongTokenException
     {
         String token = args[0];
-        EosKey key   = EosKey.parse(args[1]);
+        EosKey key   = resolver.resolve(args[1]);
 
         if (key.schemaEquals(EosKey.Schema.inc)) {
             doMakeIncrement(key, token, args);

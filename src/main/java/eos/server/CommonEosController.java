@@ -2,10 +2,10 @@ package eos.server;
 
 import eos.EosController;
 import eos.EosRegistry;
-import eos.filters.StarPatternFilter;
 import eos.access.AccessTokenRepository;
-import eos.observers.GeneralObservingPool;
+import eos.filters.StarPatternFilter;
 import eos.observers.ObservingEvent;
+import eos.observers.ObservingPool;
 import eos.type.EosEntry;
 import eos.type.EosKey;
 
@@ -16,11 +16,11 @@ public class CommonEosController implements EosController
 {
     final EosRegistry metricRegistry;
     final AccessTokenRepository accessTokenRepository;
-    final GeneralObservingPool pool;
+    final ObservingPool pool;
     final boolean allowAllRead;
 
     public CommonEosController(EosRegistry metricRegistry,
-                               GeneralObservingPool observer,
+                               ObservingPool observer,
                                AccessTokenRepository accessTokenRepository,
                                boolean allowAllRead
     ) {
@@ -54,7 +54,7 @@ public class CommonEosController implements EosController
             throw new WrongTokenException(token);
         }
 
-        pool.send(event);
+        pool.report(event);
     }
 
     @Override

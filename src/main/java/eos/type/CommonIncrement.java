@@ -1,12 +1,9 @@
-package eos.metrics;
+package eos.type;
 
 import eos.collections.TimeSampledHistoryList;
 import eos.render.RenderableList;
 import eos.render.RenderableMap;
 import eos.render.RenderableObject;
-import eos.type.LongIncrement;
-import eos.type.EosEntry;
-import eos.type.EosKey;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package eos.server.netty.tcp;
 
-import eos.server.netty.tcp.packet.Event;
 import eos.observers.Observer;
 import eos.observers.ObservingEvent;
+import eos.server.netty.tcp.packet.Event;
 import eos.type.KeyFilter;
 import io.netty.channel.ChannelHandlerContext;
 

@@ -2,20 +2,16 @@ package eos.observers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class GeneralObservingPool
+public class SyncronousObservingPool implements ObservingPool
 {
     final List<Observer> observers;
-    final ExecutorService pool;
 
-    public GeneralObservingPool() {
-        this.observers   = new ArrayList<>(50);
-
-        pool = Executors.newFixedThreadPool(50);
+    public SyncronousObservingPool() {
+        this.observers   = new ArrayList<>(10);
     }
 
+    @Override
     public void register(Observer observer)
     {
         if (observer == null) {
@@ -26,6 +22,7 @@ public class GeneralObservingPool
         observers.add(observer);
     }
 
+    @Override
     public void unregister(Observer observer)
     {
         if (observer != null) {
@@ -33,13 +30,11 @@ public class GeneralObservingPool
         }
     }
 
-    public void send(final ObservingEvent event)
+    @Override
+    public void report(final ObservingEvent event)
     {
-        pool.submit(() -> {
-            for (Observer o : observers) {
-                o.report(event);
-            }
-        });
+        for (Observer o : observers) {
+            o.report(event);
+        }
     }
-
 }

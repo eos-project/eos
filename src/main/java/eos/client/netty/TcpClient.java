@@ -1,15 +1,16 @@
 package eos.client.netty;
 
 import eos.EosRegistry;
-import eos.type.Logger;
-import eos.server.netty.tcp.packet.Event;
-import eos.server.netty.tcp.packet.Subscribe;
-import eos.observers.GeneralObservingPool;
 import eos.observers.IncrementObserver;
 import eos.observers.LoggersObserver;
 import eos.observers.ObservingEvent;
+import eos.observers.ObservingPool;
+import eos.server.netty.tcp.packet.Event;
+import eos.server.netty.tcp.packet.Subscribe;
 import eos.type.EosKey;
+import eos.type.EosKeyResolver;
 import eos.type.KeyFilter;
+import eos.type.Logger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -23,20 +24,22 @@ import java.net.InetAddress;
 
 public class TcpClient implements Runnable
 {
-    final GeneralObservingPool pool;
+    final ObservingPool pool;
     final Logger logger;
 
     final String host;
     final int port;
     final KeyFilter filter;
+    final EosKeyResolver resolver;
 
-    public TcpClient(EosRegistry internalMetrics, GeneralObservingPool pool,String host, int port, KeyFilter filter) throws Exception
+    public TcpClient(EosRegistry internalMetrics, ObservingPool pool,String host, int port, KeyFilter filter, EosKeyResolver resolver) throws Exception
     {
-        this.host   = host;
-        this.port   = port;
-        this.pool   = pool;
-        this.filter = filter;
-        this.logger = (Logger) internalMetrics.take(
+        this.host     = host;
+        this.port     = port;
+        this.pool     = pool;
+        this.filter   = filter;
+        this.resolver = resolver;
+        this.logger   = (Logger) internalMetrics.take(
             new EosKey(
                 EosKey.Schema.log,
                 "eos.core.client.tcp",
@@ -86,13 +89,13 @@ public class TcpClient implements Runnable
             if (msg instanceof Event) {
                 Event eMessage = (Event) msg;
 
-                EosKey key = EosKey.parse(eMessage.key);
+                EosKey key = resolver.resolve(eMessage.key);
                 if (key.schemaEquals(EosKey.Schema.log)) {
                     ObservingEvent oe = new LoggersObserver.Event(key, eMessage.value);
-                    pool.send(oe);
+                    pool.report(oe);
                 } else {
                     ObservingEvent oe = new IncrementObserver.Event(key, Long.parseLong(eMessage.value));
-                    pool.send(oe);
+                    pool.report(oe);
                 }
             }
         }

@@ -42,7 +42,7 @@ public interface EosController
      * Sends update event to metric registry
      *
      * @param token Access token
-     * @param event Event to send
+     * @param event Event to report
      * @throws WrongTokenException
      */
     void sendEvent(String token, ObservingEvent event) throws WrongTokenException;

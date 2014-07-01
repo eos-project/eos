@@ -1,12 +1,12 @@
 package eos.server.netty.tcp;
 
-import eos.filters.FilterFactory;
 import eos.EosRegistry;
-import eos.type.Logger;
-import eos.server.netty.tcp.packet.Subscribe;
-import eos.observers.GeneralObservingPool;
+import eos.filters.FilterFactory;
 import eos.observers.LoggersObserver;
+import eos.observers.ObservingPool;
+import eos.server.netty.tcp.packet.Subscribe;
 import eos.type.EosKey;
+import eos.type.Logger;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -25,12 +25,13 @@ public class TcpServer implements Runnable
 {
     final String host;
     final int port;
-    final GeneralObservingPool pool;
+    final ObservingPool pool;
     final FilterFactory filterFactory;
+    final EosKey welcomeKey;
 
     final Logger logger;
 
-    public TcpServer(String host, int port, EosRegistry internalMetrics, GeneralObservingPool pool) throws Exception
+    public TcpServer(String host, int port, EosRegistry internalMetrics, ObservingPool pool) throws Exception
     {
         this.host = host;
         this.port = port;
@@ -38,14 +39,11 @@ public class TcpServer implements Runnable
         this.filterFactory = new FilterFactory();
 
         // Internal metrics
-        this.logger = (Logger) internalMetrics.take(
-                new EosKey(
-                        EosKey.Schema.log,
-                        "eos.core.server.tcp",
-                        InetAddress.getLocalHost().getHostName(),
-                        "eos"
-                )
-        );
+        this.logger = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log, "eos.core.server.tcp", null));
+
+        // Welcome key
+        this.welcomeKey = new EosKey(EosKey.Schema.log, "eos.core.server.tcp.welcome", null);
+
         this.logger.log("New instance of TcpServer created");
     }
 
@@ -113,7 +111,7 @@ public class TcpServer implements Runnable
                 pool.register(observer);
 
                 // Sending welcome log packet
-                observer.report(new LoggersObserver.Event(EosKey.parse("log://eos.core.server.tcp.welcome"), "Connected"));
+                observer.report(new LoggersObserver.Event(welcomeKey, "Connected"));
             }
         }
 

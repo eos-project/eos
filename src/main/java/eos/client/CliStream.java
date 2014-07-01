@@ -1,10 +1,10 @@
 package eos.client;
 
-import eos.render.out.Console;
 import eos.observers.IncrementObserver;
 import eos.observers.LoggersObserver;
 import eos.observers.Observer;
 import eos.observers.ObservingEvent;
+import eos.render.out.Console;
 import eos.type.KeyFilter;
 
 import java.util.ArrayList;

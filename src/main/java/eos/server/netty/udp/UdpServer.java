@@ -2,8 +2,9 @@ package eos.server.netty.udp;
 
 import eos.EosController;
 import eos.EosRegistry;
-import eos.server.*;
+import eos.server.StringEosControllerAdapter;
 import eos.type.EosKey;
+import eos.type.EosKeyResolver;
 import eos.type.Logger;
 import eos.type.LongIncrement;
 import io.netty.bootstrap.Bootstrap;
@@ -30,39 +31,19 @@ public class UdpServer implements Runnable
         String host,
         int port,
         EosRegistry internalMetrics,
-        EosController metricController
+        EosController metricController,
+        EosKeyResolver resolver
     ) throws Exception
     {
         this.host             = host;
         this.port             = port;
         // Internal metrics
-        this.logger           = (Logger) internalMetrics.take(
-                new EosKey(
-                        EosKey.Schema.log,
-                        "eos.core.server.udp",
-                        InetAddress.getLocalHost().getHostName(),
-                        "eos"
-                )
-        );
-        udpServerRequests = (LongIncrement) internalMetrics.take(
-                new EosKey(
-                        EosKey.Schema.inc,
-                        "eos.core.server.udp.requests",
-                        InetAddress.getLocalHost().getHostName(),
-                        "eos"
-                )
-        );
-        udpServerFailures = (LongIncrement) internalMetrics.take(
-            new EosKey(
-                EosKey.Schema.inc,
-                "eos.core.server.udp.failures",
-                InetAddress.getLocalHost().getHostName(),
-                "eos"
-            )
-        );
+        logger            = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log,"eos.core.server.udp",null));
+        udpServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.requests", null));
+        udpServerFailures = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.failures", null));
 
         // Building adapter
-        adapter = new StringEosControllerAdapter(metricController, metricController.getTokenRepository());
+        adapter = new StringEosControllerAdapter(metricController, metricController.getTokenRepository(), resolver);
         this.logger.log("New instance of UdpServer created");
     }
 

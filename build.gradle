@@ -11,7 +11,7 @@ version = '0.1'
 mainClassName = "eos.App"
 
 group       = "eos-project"
-version     = "0.1.0"
+version     = "0.1.1"
 status      = "prototype"
 description = "All-purpose in-memory metrics & logging"
 
