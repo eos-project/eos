@@ -16,8 +16,6 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.CharsetUtil;
 
-import java.net.InetAddress;
-
 public class UdpServer implements Runnable
 {
     final String host;

@@ -19,7 +19,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 
-import java.net.InetAddress;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

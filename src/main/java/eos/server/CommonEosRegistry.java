@@ -1,8 +1,6 @@
 package eos.server;
 
 import eos.EosRegistry;
-import eos.type.CommonLogger;
-import eos.type.CommonIncrement;
 import eos.observers.IncrementObserver;
 import eos.observers.LoggersObserver;
 import eos.observers.ObservingEvent;

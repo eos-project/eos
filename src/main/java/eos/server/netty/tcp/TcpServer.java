@@ -16,8 +16,6 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import java.net.InetAddress;
-
 /**
  * Server used for incoming client replica connections only
  */

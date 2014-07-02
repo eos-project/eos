@@ -3,9 +3,6 @@ package eos.type;
 import eos.collections.CommonHistoryList;
 import eos.collections.HistoryList;
 import eos.render.*;
-import eos.type.EosEntry;
-import eos.type.EosKey;
-import eos.type.Logger;
 
 import java.util.Date;
 
