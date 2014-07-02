@@ -96,6 +96,14 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
                 combinations.add(newKey.withoutServer());
             }
         }
+        if (origin.hasTags()) {
+            combinations.add(origin.withoutTags());
+            if (origin.hasServer()) {
+                combinations.add(origin.withoutServerAndTag());
+            }
+        } else if (origin.hasServer()) {
+            combinations.add(origin.withoutServer());
+        }
 
         return combinations.toArray(new EosKey[combinations.size()]);
     }
@@ -120,6 +128,9 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
             list.add(new String[]{tags[0], tags[1]});
             list.add(new String[]{tags[0], tags[2]});
             list.add(new String[]{tags[1], tags[2]});
+            list.add(new String[]{tags[0]});
+            list.add(new String[]{tags[1]});
+            list.add(new String[]{tags[2]});
         } else {
             // Recursive
             for (int i=0; i < tags.length; i++) {
@@ -128,6 +139,7 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
                 for (int j=0; j < tags.length; j++) {
                     if (j != i) part[z++] = tags[j];
                 }
+                list.add(part);
                 list.addAll(recombine(part));
             }
         }

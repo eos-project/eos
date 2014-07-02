@@ -40,4 +40,38 @@ public class CachedEosKeyResolverTest
     {
         CachedEosKeyResolver.parse("log://test@localhost@remote");
     }
+
+    @Test
+    public void testRecombine()
+    {
+        EosKey k;
+        EosKey[] rc;
+        k = new EosKey(EosKey.Schema.log, "test", null);
+        Assert.assertEquals(1, CachedEosKeyResolver.recombination(k).length);
+        Assert.assertSame(k, CachedEosKeyResolver.recombination(k)[0]);
+
+        k  = new EosKey(EosKey.Schema.log, "test", null, "a", "b");
+        rc = CachedEosKeyResolver.recombination(k);
+        Assert.assertEquals(1 + 1 + 2, rc.length);
+        Assert.assertEquals("log://test:a:b", rc[0].toString());
+        Assert.assertEquals("log://test:a", rc[1].toString());
+        Assert.assertEquals("log://test:b", rc[2].toString());
+        Assert.assertEquals("log://test", rc[3].toString());
+
+        k  = new EosKey(EosKey.Schema.log, "test", null, "c", "b", "a");
+        rc = CachedEosKeyResolver.recombination(k);
+        Assert.assertEquals(1 + 1 + 6, rc.length);
+        Assert.assertEquals("log://test:a:b:c", rc[0].toString());
+        Assert.assertEquals("log://test:a:b", rc[1].toString());
+        Assert.assertEquals("log://test:a:c", rc[2].toString());
+        Assert.assertEquals("log://test:b:c", rc[3].toString());
+        Assert.assertEquals("log://test:a", rc[4].toString());
+        Assert.assertEquals("log://test:b", rc[5].toString());
+        Assert.assertEquals("log://test:c", rc[6].toString());
+        Assert.assertEquals("log://test", rc[7].toString());
+
+        k = new EosKey(EosKey.Schema.log, "test", null, "c", "z", "j", "2", "b", "a");
+        rc = CachedEosKeyResolver.recombination(k);
+        Assert.assertEquals(878, rc.length);
+    }
 }
