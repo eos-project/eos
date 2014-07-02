@@ -18,6 +18,11 @@ public class FilterFactory
         if (pattern == null || pattern.length() == 0) {
             return null;
         }
+        if (pattern.startsWith("+:")) {
+            return new SingleTagFilter(pattern.substring(2));
+        } else if (pattern.startsWith(":")) {
+            return new SingleTagFilter(pattern.substring(1));
+        }
         return new StarPatternFilter(pattern);
     }
 }
