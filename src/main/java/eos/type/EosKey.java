@@ -1,5 +1,7 @@
 package eos.type;
 
+import java.util.Arrays;
+
 /**
  * Structure, used for metrics key
  */
@@ -11,11 +13,6 @@ public class EosKey
     final String[] tags;
 
     final String url;
-
-    /**
-     * Cache for faster keys resolving
-     */
-    static final EosKey[] cache = new EosKey[97];
 
     /**
      * Precalculated hash code
@@ -42,6 +39,8 @@ public class EosKey
 
         if (tags == null) {
             tags = new String[0];
+        } else if (tags.length > 1) {
+            Arrays.sort(tags);
         }
 
         // Validating special characters
@@ -74,6 +73,14 @@ public class EosKey
 
         // Calculating hash
         this.hash = this.url.hashCode();
+    }
+
+    /**
+     * @return Inner key
+     */
+    public String getKey()
+    {
+        return key;
     }
 
     /**

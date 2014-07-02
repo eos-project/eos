@@ -88,17 +88,50 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
         // First is origin by itself
         combinations.add(origin);
 
-        if (origin.hasServer()) {
-            // Shortcut for server
-            combinations.addAll(Arrays.asList(recombination(origin.withoutServer())));
-        } else if (origin.hasTags()) {
-            // Have no server, but have tags
-            String tags[] = origin.getTags();
-
-            // todo This part is not ready
-            combinations.add(origin.withoutTags());
+        // Adding combinations
+        for (String[] tags : recombine(origin.getTags())) {
+            EosKey newKey = new EosKey(origin.getSchema(), origin.getKey(), origin.getServer(), tags);
+            combinations.add(newKey);
+            if (newKey.hasServer()) {
+                combinations.add(newKey.withoutServer());
+            }
         }
 
         return combinations.toArray(new EosKey[combinations.size()]);
+    }
+
+    /**
+     * Returns list of recombined tags
+     *
+     * @param tags Tags array
+     * @return List of combinations
+     */
+    static List<String[]> recombine(String[] tags)
+    {
+        List<String[]> list = new ArrayList<>();
+        if (tags.length < 2) {
+            // Do nothing
+        } else if (tags.length == 2) {
+            // Hardcoded
+            list.add(new String[]{tags[0]});
+            list.add(new String[]{tags[1]});
+        } else if (tags.length == 3) {
+            // Hardcoded
+            list.add(new String[]{tags[0], tags[1]});
+            list.add(new String[]{tags[0], tags[2]});
+            list.add(new String[]{tags[1], tags[2]});
+        } else {
+            // Recursive
+            for (int i=0; i < tags.length; i++) {
+                String[] part = new String[tags.length-1];
+                int z = 0;
+                for (int j=0; j < tags.length; j++) {
+                    if (j != i) part[z++] = tags[j];
+                }
+                list.addAll(recombine(part));
+            }
+        }
+
+        return list;
     }
 }
