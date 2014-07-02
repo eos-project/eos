@@ -1,12 +1,12 @@
 # IDE
-.idea/
+/.idea/
 *.iml
 
 # Build and wrappers
-gradle/
-.gradle/
-out/
-build/
+/gradle/
+/.gradle/
+/out/
+/build/
 gradlew*
 .gradletasknamecache
 
