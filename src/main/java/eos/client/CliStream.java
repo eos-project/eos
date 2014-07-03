@@ -10,15 +10,23 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 public class CliStream implements Observer
 {
+    static final SimpleDateFormat fullTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    static final SimpleDateFormat partTime = new SimpleDateFormat("HH:mm:ss");
+
     final Console console;
     final KeyFilter filter;
     final JsonFactory factory;
+    final long separatorThreshold = 3000;
+    final long fullTimeThreshold  = 3600000;
+    long lastOutput;
 
     public CliStream(KeyFilter filter)
     {
@@ -28,16 +36,34 @@ public class CliStream implements Observer
     }
 
     @Override
-    public void report(ObservingEvent event) {
+    public synchronized void report(ObservingEvent event) {
         if (filter != null && !filter.matches(event.getKey())) {
             // Not matched
             return;
         }
 
+        long current = System.currentTimeMillis();
+        long delta = current - lastOutput;
+
         ArrayList<Object> list = new ArrayList<>();
-        list.add("[");
+        if (delta > separatorThreshold) {
+            // New log session
+            list.add("\n\n\n      ------------------------------------------\n\n\n");
+        }
+
         list.add(Console.Color.FG_CYAN);
-        list.add(event.getKey().getSchema().toString());
+        list.add("[" + event.getKey().getSchema().toString() + "] ");
+        list.add(Console.Color.RESET);
+
+        list.add("[");
+        list.add(Console.Color.FG_PURPLE);
+        if (delta > fullTimeThreshold) {
+            list.add(fullTime.format(new Date()));
+        } else if (delta > separatorThreshold) {
+            list.add(partTime.format(new Date()));
+        } else {
+            list.add(String.format("+%.3fs", ((float) delta) / 1000f));
+        }
         list.add(Console.Color.RESET);
         list.add("] ");
 
@@ -78,6 +104,7 @@ public class CliStream implements Observer
         }
 
         console.print(list.toArray()).nl();
+        lastOutput = current;
     }
 
     void showJson(JsonNode node, List<Object> list) throws Exception
