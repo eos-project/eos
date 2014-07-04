@@ -7,6 +7,7 @@ import eos.observers.ObservingEvent;
 import eos.render.out.Console;
 import eos.type.KeyFilter;
 import eos.util.StringStartPatternFinder;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -54,6 +55,7 @@ public class CliStream implements Observer
         }
 
         list.add(Console.Color.FG_CYAN);
+        list.add(Console.Color.BOLD);
         list.add("[" + event.getKey().getSchema().toString() + "] ");
         list.add(Console.Color.RESET);
 
@@ -121,7 +123,7 @@ public class CliStream implements Observer
             list.add(Console.Color.FG_YELLOW);
             list.add("[msg] ");
             list.add(Console.Color.FG_GREEN);
-            list.add(node.get("message").toString());
+            list.add(trimQuote(node.get("message")));
             list.add(Console.Color.RESET);
             list.add("\n");
         }
@@ -130,7 +132,7 @@ public class CliStream implements Observer
             list.add(Console.Color.FG_YELLOW);
             list.add("[ctx] ");
             list.add(Console.Color.FG_GREEN);
-            list.add(node.get("object").toString());
+            list.add(trimQuote(node.get("object")));
             list.add(Console.Color.RESET);
             list.add("\n");
         }
@@ -142,7 +144,7 @@ public class CliStream implements Observer
                 list.add("[err] ");
                 list.add(Console.Color.RESET);
                 list.add(Console.Color.FG_GREEN);
-                list.add(n.get("message").toString());
+                list.add(trimQuote(n.get("message")));
                 list.add(Console.Color.RESET);
                 list.add("\n");
             }
@@ -155,11 +157,17 @@ public class CliStream implements Observer
 
                 List<String> lineNumbers = new ArrayList<>();
                 List<String> files       = new ArrayList<>();
+                int lineNumberWidth = 0;
 
                 while (el.hasNext()) {
                     JsonNode x = el.next();
-                    lineNumbers.add(x.get("line").toString());
-                    files.add(x.get("file").toString());
+                    String ln = x.get("line").toString();
+                    lineNumbers.add(ln);
+                    files.add(trimQuote(x.get("file")));
+
+                    if (ln.length() > lineNumberWidth) {
+                        lineNumberWidth = ln.length();
+                    }
                 }
 
                 // Repeating pattern
@@ -169,7 +177,7 @@ public class CliStream implements Observer
                     list.add("      ");
                     list.add("Line ");
                     list.add(Console.Color.FG_CYAN);
-                    list.add(lineNumbers.get(i));
+                    list.add(StringUtils.leftPad(lineNumbers.get(i), lineNumberWidth, ' '));
                     list.add(Console.Color.RESET);
                     list.add(" @ ");
                     if (filePattern.length() > 0) {
@@ -183,26 +191,6 @@ public class CliStream implements Observer
                     list.add(Console.Color.RESET);
                     list.add("\n");
                 }
-
-                /*
-                while (el.hasNext()) {
-                    JsonNode x = el.next();
-                    if (x.has("file") && x.has("line")) {
-                        list.add(Console.Color.FG_YELLOW);
-                        list.add("      ");
-                        list.add(Console.Color.RESET);
-                        list.add("Line ");
-                        list.add(Console.Color.FG_CYAN);
-                        list.add(x.get("line").toString());
-                        list.add(Console.Color.RESET);
-                        list.add(" @ ");
-                        list.add(Console.Color.FG_GREEN);
-                        list.add(x.get("file").toString());
-                        list.add(Console.Color.RESET);
-                        list.add("\n");
-                    }
-                }
-                */
             }
         }
 
@@ -223,11 +211,24 @@ public class CliStream implements Observer
                 list.add(Console.Color.RESET);
             } else {
                 list.add(Console.Color.FG_GREEN);
-                list.add(n.toString());
+                list.add(trimQuote(n.toString()));
                 list.add(Console.Color.RESET);
             }
             list.add("\n");
         }
+    }
+
+    String trimQuote(Object o)
+    {
+        if (o == null) {
+            return "";
+        }
+        String str = o.toString();
+        if (str.startsWith("\"") && str.endsWith("\"")) {
+            return str.substring(1, str.length() - 1);
+        }
+
+        return str;
     }
 
 }
