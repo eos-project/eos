@@ -8,9 +8,7 @@ import eos.type.EosKeyResolver;
 import eos.type.Logger;
 import eos.type.LongIncrement;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -53,6 +51,8 @@ public class UdpServer implements Runnable
 
         try {
             Bootstrap b = new Bootstrap();
+            b.option(ChannelOption.SO_RCVBUF, 2 * 1024 * 1024);
+            b.option(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(16 * 1024));
             b.group(group)
                 .channel(NioDatagramChannel.class)
                 .handler(new UdpHandler());
