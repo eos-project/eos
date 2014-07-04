@@ -6,6 +6,7 @@ import eos.observers.Observer;
 import eos.observers.ObservingEvent;
 import eos.render.out.Console;
 import eos.type.KeyFilter;
+import eos.util.StringStartPatternFinder;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,6 +21,7 @@ public class CliStream implements Observer
 {
     static final SimpleDateFormat fullTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     static final SimpleDateFormat partTime = new SimpleDateFormat("HH:mm:ss");
+    static final StringStartPatternFinder sspf = new StringStartPatternFinder();
 
     final Console console;
     final KeyFilter filter;
@@ -150,6 +152,39 @@ public class CliStream implements Observer
                 list.add(Console.Color.RESET);
                 list.add("\n");
                 Iterator<JsonNode> el = n.get("trace").getElements();
+
+                List<String> lineNumbers = new ArrayList<>();
+                List<String> files       = new ArrayList<>();
+
+                while (el.hasNext()) {
+                    JsonNode x = el.next();
+                    lineNumbers.add(x.get("line").toString());
+                    files.add(x.get("file").toString());
+                }
+
+                // Repeating pattern
+                String filePattern = sspf.findPattern(files.toArray(new String[files.size()]));
+
+                for (int i = 0; i < files.size(); i++) {
+                    list.add("      ");
+                    list.add("Line ");
+                    list.add(Console.Color.FG_CYAN);
+                    list.add(lineNumbers.get(i));
+                    list.add(Console.Color.RESET);
+                    list.add(" @ ");
+                    if (filePattern.length() > 0) {
+                        list.add(Console.Color.FG_CYAN);
+                        list.add("/");
+                        list.add(Console.Color.FG_GREEN);
+                        list.add(files.get(i).substring(filePattern.length()));
+                    } else {
+                        list.add(Console.Color.FG_GREEN);
+                    }
+                    list.add(Console.Color.RESET);
+                    list.add("\n");
+                }
+
+                /*
                 while (el.hasNext()) {
                     JsonNode x = el.next();
                     if (x.has("file") && x.has("line")) {
@@ -167,6 +202,7 @@ public class CliStream implements Observer
                         list.add("\n");
                     }
                 }
+                */
             }
         }
 
