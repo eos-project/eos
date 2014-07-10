@@ -245,7 +245,7 @@ public class App implements Runnable
     void udp(int port) throws Exception
     {
         stdout.println("Starting UDP listener");
-        (new Thread(new UdpServer("localhost", port, metricRegistry,  metricController, resolver))).start();
+        (new Thread(new UdpServer("0.0.0.0", port, metricRegistry,  metricController, resolver))).start();
         stdout.println("UDP server listening on " + port);
     }
 
