@@ -12,6 +12,7 @@ import eos.server.CommonEosRegistry;
 import eos.server.netty.rest.RestServer;
 import eos.server.netty.tcp.TcpServer;
 import eos.server.netty.udp.UdpServer;
+import eos.server.netty.ws.WsServer;
 import eos.type.CachedEosKeyResolver;
 import eos.type.EosKeyCombinator;
 import eos.type.EosKeyResolver;
@@ -31,6 +32,7 @@ public class App implements Runnable
     final int defaultRestPort   = 8085;
     final int defaultUdpPort    = 8087;
     final int defaultTcpPort    = 8088;
+    final int defaultWsPort     = 8090;
 
     /**
      * Command-line arguments
@@ -177,6 +179,16 @@ public class App implements Runnable
                 this.rest(port);
             }
 
+            if (args.containsKey("ws")) {
+                String portString = args.get("ws");
+                int port = this.defaultWsPort;
+                if (portString != null) {
+                    port = Integer.parseInt(portString);
+                }
+
+                this.ws(port);
+            }
+
             if (args.containsKey("cli")) {
                 String filterString = args.get("cli");
                 this.cli(ff.getFilter(filterString));
@@ -217,6 +229,7 @@ public class App implements Runnable
                 "  --help | -h      displays this message",
                 "  --rest[=port]    starts web server on port " + defaultRestPort,
                 "  --tcp[=port]     starts tcp replica listener on port " + defaultUdpPort,
+                "  --ws[=port]      starts web socket server on port " + defaultWsPort,
                 "  --udp[=port]     starts udp listener on port " + defaultTcpPort,
                 "  --cli[=filter]   cli streaming",
                 "  --connect=host,port[,filter] connects to tcp replica server"
@@ -260,6 +273,19 @@ public class App implements Runnable
         stdout.println("Starting replica TCP listener");
         (new Thread(new TcpServer("localhost", port, metricRegistry, observerMaster))).start();
         stdout.println("TCP server listening on " + port);
+    }
+
+    /**
+     * Starts web socket server
+     *
+     * @param port Port
+     * @throws Exception
+     */
+    void ws(int port) throws Exception
+    {
+        stdout.println("Starting web socket server");
+        (new Thread(new WsServer("0.0.0.0", port, metricRegistry, observerMaster))).start();
+        stdout.println("Web socket server listening on " + port);
     }
 
     void connect(String host, int port, KeyFilter filter) throws Exception
