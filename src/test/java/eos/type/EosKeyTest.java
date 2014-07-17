@@ -10,16 +10,16 @@ public class EosKeyTest
     {
         EosKey k;
 
-        k = new EosKey(EosKey.Schema.log, "test", null, "a", "b", "c");
+        k = new EosKey(EosKey.Schema.log, "test", "a", "b", "c");
         Assert.assertEquals("log://test:a:b:c", k.toString());
 
-        k = new EosKey(EosKey.Schema.log, "test", null, "b", "a", "c");
+        k = new EosKey(EosKey.Schema.log, "test", "b", "a", "c");
         Assert.assertEquals("log://test:a:b:c", k.toString());
 
-        k = new EosKey(EosKey.Schema.log, "test", null, "b", "z", "c", "a");
+        k = new EosKey(EosKey.Schema.log, "test", "b", "z", "c", "a");
         Assert.assertEquals("log://test:a:b:c:z", k.toString());
 
-        k = new EosKey(EosKey.Schema.log, "test", "localhost", "b", "z", "c", "a", "k", "e", "w", "h");
-        Assert.assertEquals("log://test@localhost:a:b:c:e:h:k:w:z", k.toString());
+        k = new EosKey(EosKey.Schema.log, "test", "b", "z", "c", "a", "k", "e", "w", "h");
+        Assert.assertEquals("log://test:a:b:c:e:h:k:w:z", k.toString());
     }
 }

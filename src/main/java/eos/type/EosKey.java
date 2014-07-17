@@ -9,7 +9,6 @@ public class EosKey
 {
     final Schema schema;
     final String key;
-    final String server;
     final String[] tags;
 
     final String url;
@@ -22,12 +21,16 @@ public class EosKey
     /**
      * Constructor
      *
-     * @param schema Entry schema (log, increment, etc.)
-     * @param key    Name
-     * @param server Server name (optional)
-     * @param tags   Tags
+     * @param schema
+     *        Entry schema (log, increment, etc.)
+     *
+     * @param key
+     *        Name
+     *
+     * @param tags
+     *        List of tags (one of them can be server name)
      */
-    public EosKey(Schema schema, String key, String server, String... tags)
+    public EosKey(Schema schema, String key, String... tags)
     {
         if (schema == null) {
             throw new IllegalArgumentException("Schema cannot be null");
@@ -45,27 +48,20 @@ public class EosKey
 
         // Validating special characters
         if (key.contains("@") || key.contains(":")) {
-            throw new IllegalArgumentException("Key cant contain @ or :");
-        }
-
-        if (server != null && (server.contains("@") || server.contains(":"))) {
-            throw new IllegalArgumentException("Server cant contain @ or :");
+            throw new IllegalArgumentException("Key cant contain :");
         }
 
         // Setting
         this.key    = key.toLowerCase();
-        this.server = server;
         this.tags   = tags;
         this.schema = schema;
 
         // Calculating url
-        String url = schema + "://"
-            + key
-            + (server != null ? "@" + server : "");
+        String url = schema + "://" + key;
 
         for (String t : tags) {
-            if (t.contains("@") || t.contains(":")) {
-                throw new IllegalArgumentException("Tag cannot contain @ or :");
+            if (t.contains(":")) {
+                throw new IllegalArgumentException("Tag cannot contain :");
             }
             url += ":" + t;
         }
@@ -91,24 +87,11 @@ public class EosKey
     }
 
     /**
-     * @return Current server
-     */
-    public String getServer() { return server; }
-
-    /**
      * @return All tags
      */
     public String[] getTags()
     {
         return tags;
-    }
-
-    /**
-     * @return True if current key has server in it's definition
-     */
-    public boolean hasServer()
-    {
-        return server != null;
     }
 
     /**
@@ -133,27 +116,11 @@ public class EosKey
     }
 
     /**
-     * @return Returns key without server
-     */
-    public EosKey withoutServer()
-    {
-        return new EosKey(schema, key, null, tags);
-    }
-
-    /**
      * @return Returns key without tags
      */
     public EosKey withoutTags()
     {
-        return new EosKey(schema, key, server);
-    }
-
-    /**
-     * @return Returns key without tags and servers
-     */
-    public EosKey withoutServerAndTag()
-    {
-        return new EosKey(schema, key, null);
+        return new EosKey(schema, key);
     }
 
     /**
@@ -163,15 +130,6 @@ public class EosKey
     public boolean schemaEquals(Schema schema)
     {
         return this.schema == schema;
-    }
-
-    /**
-     * @param server Server name
-     * @return True if key's server equals to provided
-     */
-    public boolean serverEquals(String server)
-    {
-        return (this.server == null && server == null) || (this.server != null && this.server.equals(server));
     }
 
     /**

@@ -42,8 +42,8 @@ public class RestServer implements Runnable
         this.metricController = metricController;
         this.resolver         = resolver;
         // Internal metrics
-        this.logger             = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log, "eos.core.server.rest", null));
-        this.restServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.rest.requests", null));
+        this.logger             = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log, "eos.core.server.rest"));
+        this.restServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.rest.requests"));
         this.logger.log("New instance of RestServer created");
     }
 

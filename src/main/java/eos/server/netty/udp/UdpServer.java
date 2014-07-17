@@ -34,9 +34,9 @@ public class UdpServer implements Runnable
         this.host             = host;
         this.port             = port;
         // Internal metrics
-        logger            = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log,"eos.core.server.udp",null));
-        udpServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.requests", null));
-        udpServerFailures = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.failures", null));
+        logger            = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log,"eos.core.server.udp"));
+        udpServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.requests"));
+        udpServerFailures = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.failures"));
 
         // Building adapter
         adapter = new StringEosControllerAdapter(metricController, metricController.getTokenRepository(), resolver);

@@ -11,34 +11,21 @@ public class CachedEosKeyResolverTest
         EosKey e = CachedEosKeyResolver.parse("log://test.key");
         Assert.assertEquals(EosKey.Schema.log, e.getSchema());
         Assert.assertEquals("test.key", e.key);
-        Assert.assertFalse(e.hasServer());
         Assert.assertFalse(e.hasTags());
 
-        e = CachedEosKeyResolver.parse("inc://test.key@localhost");
+        e = CachedEosKeyResolver.parse("inc://test.key:tag1");
         Assert.assertEquals(EosKey.Schema.inc, e.getSchema());
         Assert.assertEquals("test.key", e.key);
-        Assert.assertTrue(e.hasServer());
-        Assert.assertFalse(e.hasTags());
-
-        e = CachedEosKeyResolver.parse("inc://test.key@localhost:tag1");
-        Assert.assertEquals(EosKey.Schema.inc, e.getSchema());
-        Assert.assertEquals("test.key", e.key);
-        Assert.assertTrue(e.hasServer());
         Assert.assertTrue(e.hasTags());
         Assert.assertEquals(1, e.tags.length);
+        Assert.assertTrue(e.hasTag("tag1"));
+        Assert.assertFalse(e.hasTag("tag2"));
 
-        e = CachedEosKeyResolver.parse("inc://test.key:tag1@localhost:tag2:tagN");
+        e = CachedEosKeyResolver.parse("inc://test.key:tag1:tag2:tagN");
         Assert.assertEquals(EosKey.Schema.inc, e.getSchema());
         Assert.assertEquals("test.key", e.key);
-        Assert.assertTrue(e.hasServer());
         Assert.assertTrue(e.hasTags());
         Assert.assertEquals(3, e.tags.length);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testResolveMultipleServers()
-    {
-        CachedEosKeyResolver.parse("log://test@localhost@remote");
     }
 
     @Test
@@ -46,11 +33,11 @@ public class CachedEosKeyResolverTest
     {
         EosKey k;
         EosKey[] rc;
-        k = new EosKey(EosKey.Schema.log, "test", null);
+        k = new EosKey(EosKey.Schema.log, "test");
         Assert.assertEquals(1, CachedEosKeyResolver.recombination(k).length);
         Assert.assertSame(k, CachedEosKeyResolver.recombination(k)[0]);
 
-        k  = new EosKey(EosKey.Schema.log, "test", null, "a", "b");
+        k  = new EosKey(EosKey.Schema.log, "test", "a", "b");
         rc = CachedEosKeyResolver.recombination(k);
         Assert.assertEquals(1 + 1 + 2, rc.length);
         Assert.assertEquals("log://test:a:b", rc[0].toString());
@@ -58,7 +45,7 @@ public class CachedEosKeyResolverTest
         Assert.assertEquals("log://test:b", rc[2].toString());
         Assert.assertEquals("log://test", rc[3].toString());
 
-        k  = new EosKey(EosKey.Schema.log, "test", null, "c", "b", "a");
+        k  = new EosKey(EosKey.Schema.log, "test", "c", "b", "a");
         rc = CachedEosKeyResolver.recombination(k);
         Assert.assertEquals(1 + 1 + 6, rc.length);
         Assert.assertEquals("log://test:a:b:c", rc[0].toString());
@@ -70,7 +57,7 @@ public class CachedEosKeyResolverTest
         Assert.assertEquals("log://test:c", rc[6].toString());
         Assert.assertEquals("log://test", rc[7].toString());
 
-        k = new EosKey(EosKey.Schema.log, "test", null, "c", "z", "j", "2", "b", "a");
+        k = new EosKey(EosKey.Schema.log, "test", "c", "z", "j", "2", "b", "a");
         rc = CachedEosKeyResolver.recombination(k);
         Assert.assertEquals(878, rc.length);
     }

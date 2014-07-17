@@ -8,8 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
-    static final Pattern KeySchemaPattern     = Pattern.compile("^([a-z\\-]*)://([^:@]+)");
-    static final Pattern ServerAndTagsPattern = Pattern.compile("([:@])([^:@/]+)");
+    static final Pattern KeySchemaPattern = Pattern.compile("^([a-z\\-]*)://([^:@]+)");
+    static final Pattern TagsPattern      = Pattern.compile("([:])([^:/]+)");
 
     final CalculationCache<String, EosKey> resolveCache;
     final CalculationCache<EosKey, EosKey[]> combinationCache;
@@ -55,23 +55,14 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
 
         EosKey.Schema schema = EosKey.Schema.valueOf(matcher.group(1));
         String key           = matcher.group(2);
-        String server        = null;
         List<String> tags    = new ArrayList<>();
 
-        matcher = ServerAndTagsPattern.matcher(source);
+        matcher = TagsPattern.matcher(source);
         while (matcher.find()) {
-            if (matcher.group(1).equals(":")) {
-                tags.add(matcher.group(2));
-            } else if (matcher.group(1).equals("@")) {
-                if (server == null) {
-                    server = matcher.group(2);
-                } else {
-                    throw new IllegalArgumentException("Multiple server definitions");
-                }
-            }
+            tags.add(matcher.group(2));
         }
 
-        return new EosKey(schema, key, server, tags.toArray(new String[tags.size()]));
+        return new EosKey(schema, key, tags.toArray(new String[tags.size()]));
     }
 
     /**
@@ -89,19 +80,11 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
 
         // Adding combinations
         for (String[] tags : recombine(origin.getTags())) {
-            EosKey newKey = new EosKey(origin.getSchema(), origin.getKey(), origin.getServer(), tags);
+            EosKey newKey = new EosKey(origin.getSchema(), origin.getKey(), tags);
             combinations.add(newKey);
-            if (newKey.hasServer()) {
-                combinations.add(newKey.withoutServer());
-            }
         }
         if (origin.hasTags()) {
             combinations.add(origin.withoutTags());
-            if (origin.hasServer()) {
-                combinations.add(origin.withoutServerAndTag());
-            }
-        } else if (origin.hasServer()) {
-            combinations.add(origin.withoutServer());
         }
 
         return combinations.toArray(new EosKey[combinations.size()]);
