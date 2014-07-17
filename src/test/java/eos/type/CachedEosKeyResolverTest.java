@@ -34,11 +34,12 @@ public class CachedEosKeyResolverTest
         EosKey k;
         EosKey[] rc;
         k = new EosKey(EosKey.Schema.log, "test");
-        Assert.assertEquals(1, CachedEosKeyResolver.recombination(k).length);
-        Assert.assertSame(k, CachedEosKeyResolver.recombination(k)[0]);
+        CachedEosKeyResolver cekr = new CachedEosKeyResolver((byte) 10, 10, 10);
+        Assert.assertEquals(1, cekr.recombination(k).length);
+        Assert.assertSame(k, cekr.recombination(k)[0]);
 
         k  = new EosKey(EosKey.Schema.log, "test", "a", "b");
-        rc = CachedEosKeyResolver.recombination(k);
+        rc = cekr.recombination(k);
         Assert.assertEquals(1 + 1 + 2, rc.length);
         Assert.assertEquals("log://test:a:b", rc[0].toString());
         Assert.assertEquals("log://test:a", rc[1].toString());
@@ -46,7 +47,7 @@ public class CachedEosKeyResolverTest
         Assert.assertEquals("log://test", rc[3].toString());
 
         k  = new EosKey(EosKey.Schema.log, "test", "c", "b", "a");
-        rc = CachedEosKeyResolver.recombination(k);
+        rc = cekr.recombination(k);
         Assert.assertEquals(1 + 1 + 6, rc.length);
         Assert.assertEquals("log://test:a:b:c", rc[0].toString());
         Assert.assertEquals("log://test:a:b", rc[1].toString());
@@ -58,7 +59,18 @@ public class CachedEosKeyResolverTest
         Assert.assertEquals("log://test", rc[7].toString());
 
         k = new EosKey(EosKey.Schema.log, "test", "c", "z", "j", "2", "b", "a");
-        rc = CachedEosKeyResolver.recombination(k);
+        rc = cekr.recombination(k);
         Assert.assertEquals(878, rc.length);
+    }
+
+    @Test
+    public void testRecombineLimit()
+    {
+        CachedEosKeyResolver cekr = new CachedEosKeyResolver((byte) 2, 10, 10);
+        EosKey k  = new EosKey(EosKey.Schema.log, "test", "c", "b", "a");
+        EosKey[] rc = cekr.recombination(k);
+
+        Assert.assertSame(1, rc.length);
+        Assert.assertSame(k, rc[0]);
     }
 }

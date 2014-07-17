@@ -11,13 +11,18 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
     static final Pattern KeySchemaPattern = Pattern.compile("^([a-z\\-]*)://([^:@]+)");
     static final Pattern TagsPattern      = Pattern.compile("([:])([^:/]+)");
 
+    final byte allowedTagsCount;
     final CalculationCache<String, EosKey> resolveCache;
     final CalculationCache<EosKey, EosKey[]> combinationCache;
 
-    public CachedEosKeyResolver(int resolveCacheCapacity, int combinationCacheCapacity)
+    public CachedEosKeyResolver(byte allowedTagsCount, int resolveCacheCapacity, int combinationCacheCapacity)
     {
+        if (allowedTagsCount < 1) {
+            throw new IllegalArgumentException("Allowed tags count must be greater, than zero");
+        }
+        this.allowedTagsCount = allowedTagsCount;
         resolveCache = new CalculationCache<>(resolveCacheCapacity, CachedEosKeyResolver::parse);
-        combinationCache = new CalculationCache<>(combinationCacheCapacity, CachedEosKeyResolver::recombination);
+        combinationCache = new CalculationCache<>(combinationCacheCapacity, this::recombination);
     }
 
     @Override
@@ -71,8 +76,14 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
      * @param origin Original key
      * @return List of combinations
      */
-    public static EosKey[] recombination(EosKey origin)
+    public EosKey[] recombination(EosKey origin)
     {
+        // Checking limit
+        if (origin.getTags().length > allowedTagsCount) {
+            // Limit exceed
+            return new EosKey[]{origin};
+        }
+
         List<EosKey> combinations = new ArrayList<>();
 
         // First is origin by itself

@@ -85,7 +85,7 @@ public class App implements Runnable
         this.stdout = new Console();
 
         // Creating resolver & combinator
-        CachedEosKeyResolver cachedEosKeyResolver = new CachedEosKeyResolver(997, 997);
+        CachedEosKeyResolver cachedEosKeyResolver = new CachedEosKeyResolver((byte) 6, 997, 997);
         this.resolver   = cachedEosKeyResolver;
         this.combinator = cachedEosKeyResolver;
 

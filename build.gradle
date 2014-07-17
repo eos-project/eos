@@ -9,7 +9,7 @@ targetCompatibility = '1.8'
 mainClassName = "eos.App"
 
 group       = "eos-project"
-version     = "0.1.4"
+version     = "0.1.5"
 status      = "prototype"
 description = "All-purpose in-memory metrics & logging"
 
