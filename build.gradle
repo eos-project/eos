@@ -1,15 +1,15 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 mainClassName = "eos.App"
 
 group       = "eos-project"
-version     = "0.1.5"
+version     = "0.1.6"
 status      = "prototype"
 description = "All-purpose in-memory metrics & logging"
 

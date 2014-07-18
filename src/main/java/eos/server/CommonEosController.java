@@ -9,8 +9,9 @@ import eos.observers.ObservingPool;
 import eos.type.EosEntry;
 import eos.type.EosKey;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CommonEosController implements EosController
 {
@@ -59,12 +60,12 @@ public class CommonEosController implements EosController
 
     @Override
     public List<String> findMetrics(String pattern) {
-        return metricRegistry
-                .getKeys(new StarPatternFilter(pattern))
-                .stream()
-                .map(EosKey::toString)
-                .sorted()
-                .collect(Collectors.toList());
+        List<String> answer = new ArrayList<>();
+        for (EosKey key : metricRegistry.getKeys(new StarPatternFilter(pattern))) {
+            answer.add(key.toString());
+        }
+        Collections.sort(answer);
+        return answer;
     }
 
 }

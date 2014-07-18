@@ -21,8 +21,18 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
             throw new IllegalArgumentException("Allowed tags count must be greater, than zero");
         }
         this.allowedTagsCount = allowedTagsCount;
-        resolveCache = new CalculationCache<>(resolveCacheCapacity, CachedEosKeyResolver::parse);
-        combinationCache = new CalculationCache<>(combinationCacheCapacity, this::recombination);
+        resolveCache = new CalculationCache<>(resolveCacheCapacity, new CalculationCache.Supplier<String, EosKey>() {
+            @Override
+            public EosKey calculate(String in) {
+                return CachedEosKeyResolver.parse(in);
+            }
+        });
+        combinationCache = new CalculationCache<>(combinationCacheCapacity, new CalculationCache.Supplier<EosKey, EosKey[]>() {
+            @Override
+            public EosKey[] calculate(EosKey in) {
+                return CachedEosKeyResolver.this.recombination(in);
+            }
+        });
     }
 
     @Override

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CommonEosRegistry implements EosRegistry
 {
@@ -75,12 +74,12 @@ public class CommonEosRegistry implements EosRegistry
     public List<EosKey> getKeys(KeyFilter filter) {
         List<EosKey> answer = new ArrayList<>();
         Map<EosKey, EosEntry> copy = this.entriesMap;
-        answer.addAll(
-            copy.keySet()
-                .stream()
-                .filter(filter::matches)
-                .collect(Collectors.toList())
-        );
+
+        for(EosKey key : copy.keySet()) {
+            if (filter.matches(key)) {
+                answer.add(key);
+            }
+        }
 
         return answer;
     }

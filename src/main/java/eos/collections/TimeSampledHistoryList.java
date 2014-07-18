@@ -1,8 +1,7 @@
 package eos.collections;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TimeSampledHistoryList <T>
 {
@@ -114,13 +113,14 @@ public class TimeSampledHistoryList <T>
     @SuppressWarnings("unchecked")
     public List<T> asList() {
         syncAndGetCurrent();
+        List<T> answer = new ArrayList<>();
         synchronized (lock) {
-            return Arrays
-                    .asList(samples)
-                    .stream()
-                    .map(o -> ((Node) o).value)
-                    .collect(Collectors.toList());
+            for (Object o : samples) {
+                answer.add(((Node) o).value);
+            }
         }
+
+        return answer;
     }
 
     public int depth() {
