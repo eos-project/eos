@@ -18,6 +18,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Cli stream client
+ * Outputs all incoming data into standard output
+ */
 public class CliStream implements Observer
 {
     static final SimpleDateFormat fullTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -31,6 +35,11 @@ public class CliStream implements Observer
     final long fullTimeThreshold  = 3600000;
     long lastOutput;
 
+    /**
+     * Constructor
+     *
+     * @param filter Filter to use
+     */
     public CliStream(KeyFilter filter)
     {
         this.console = new Console();

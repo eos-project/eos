@@ -52,6 +52,9 @@ public class MultiTagFilter implements KeyFilter
         return true;
     }
 
+    /**
+     * Matching rule, used in key filter
+     */
     public static class Rule
     {
         final String tag;
@@ -72,6 +75,9 @@ public class MultiTagFilter implements KeyFilter
         }
     }
 
+    /**
+     * Operation type, used in key filter
+     */
     public static enum Operation
     {
         MUST, MUST_NOT

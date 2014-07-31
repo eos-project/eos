@@ -2,6 +2,9 @@ package eos.access;
 
 import eos.type.EosKey;
 
+/**
+ * Token repository, that grants access to any key
+ */
 public class GrantAllTokenRepository implements AccessTokenRepository
 {
     @Override

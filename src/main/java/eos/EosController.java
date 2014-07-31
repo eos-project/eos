@@ -25,8 +25,8 @@ public interface EosController
      * @param token Access token
      * @param name  Metric name
      * @return Found entry
-     * @throws eos.server.WrongTokenException
-     * @throws eos.server.EntryNotFoundException
+     * @throws eos.server.WrongTokenException    If wrong or not valid token provided
+     * @throws eos.server.EntryNotFoundException If entry not found
      */
     EosEntry getMetricRead(String token, EosKey name) throws WrongTokenException, EntryNotFoundException;
 
@@ -43,7 +43,7 @@ public interface EosController
      *
      * @param token Access token
      * @param event Event to report
-     * @throws WrongTokenException
+     * @throws WrongTokenException If wrong or not valid token provided
      */
     void sendEvent(String token, ObservingEvent event) throws WrongTokenException;
 }

@@ -22,6 +22,9 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 
 import java.net.InetAddress;
 
+/**
+ * Tcp client, used for data replication
+ */
 public class TcpClient implements Runnable
 {
     final ObservingPool pool;
@@ -32,7 +35,25 @@ public class TcpClient implements Runnable
     final KeyFilter filter;
     final EosKeyResolver resolver;
 
-    public TcpClient(EosRegistry internalMetrics, ObservingPool pool,String host, int port, KeyFilter filter, EosKeyResolver resolver) throws Exception
+    /**
+     * Constructor
+     *
+     * @param internalMetrics Used to log internal events
+     * @param pool            Observing pool
+     * @param host            Hostname to connect
+     * @param port            Port to connect
+     * @param filter          Filter to use
+     * @param resolver        Eos key resolver, used to convert string keys into objects
+     * @throws Exception On any error
+     */
+    public TcpClient(
+            EosRegistry internalMetrics,
+            ObservingPool pool,
+            String host,
+            int port,
+            KeyFilter filter,
+            EosKeyResolver resolver
+    ) throws Exception
     {
         this.host     = host;
         this.port     = port;
@@ -76,6 +97,9 @@ public class TcpClient implements Runnable
         }
     }
 
+    /**
+     * Internal handler class
+     */
     class Handler extends SimpleChannelInboundHandler<Object>
     {
         @Override

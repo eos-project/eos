@@ -7,7 +7,7 @@ public class TimeSampledHistoryList <T>
 {
 
     public static final long sampleRateMinute = 60000;
-    public static final long sampleRateSecond = 10000;
+    public static final long sampleRateSecond = 1000;
 
     /**
      * Configured sample rate
@@ -31,6 +31,9 @@ public class TimeSampledHistoryList <T>
      */
     Object[] samples;
 
+    /**
+     * Helper class, used to store data inside history list
+     */
     private class Node
     {
         T value;
@@ -42,6 +45,13 @@ public class TimeSampledHistoryList <T>
         }
     }
 
+    /**
+     * Constructor
+     *
+     * @param samplingRate Time in millisecond in each sample
+     * @param samples      Amount of samples
+     * @param provider     Data provider, used to create new content inside samples
+     */
     public TimeSampledHistoryList(long samplingRate, int samples, Provider<T> provider)
     {
         this.depth      = samples;
@@ -56,6 +66,9 @@ public class TimeSampledHistoryList <T>
         }
     }
 
+    /**
+     * @return Current sample
+     */
     @SuppressWarnings("unchecked")
     T syncAndGetCurrent()
     {
@@ -90,26 +103,35 @@ public class TimeSampledHistoryList <T>
         }
     }
 
+    /**
+     * Creates new node for sample
+     *
+     * @param sample Sample index
+     * @return New node
+     */
     Node create(long sample)
     {
         return new Node(provider.provide(), sample);
     }
 
-    @SuppressWarnings("unchecked")
-    T extract(Object from)
-    {
-        return ((Node) from).value;
-    }
-
+    /**
+     * @return Current sample index
+     */
     public long currentSample()
     {
         return System.currentTimeMillis() / sampleRate;
     }
 
+    /**
+     * @return Current value
+     */
     public T getValue() {
         return syncAndGetCurrent();
     }
 
+    /**
+     * @return All samples as list
+     */
     @SuppressWarnings("unchecked")
     public List<T> asList() {
         syncAndGetCurrent();
@@ -123,10 +145,11 @@ public class TimeSampledHistoryList <T>
         return answer;
     }
 
-    public int depth() {
-        return this.depth;
-    }
-
+    /**
+     * Describes structure that must provide entries for new samples
+     *
+     * @param <T> Any type
+     */
     public static interface Provider<T>
     {
         public T provide();

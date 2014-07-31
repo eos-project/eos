@@ -3,11 +3,20 @@ package eos.observers;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyncronousObservingPool implements ObservingPool
+/**
+ * Synchronous observing pool
+ */
+public class SynchronousObservingPool implements ObservingPool
 {
+    /**
+     * Observers list
+     */
     final List<Observer> observers;
 
-    public SyncronousObservingPool() {
+    /**
+     * Constructor
+     */
+    public SynchronousObservingPool() {
         this.observers   = new ArrayList<>(10);
     }
 

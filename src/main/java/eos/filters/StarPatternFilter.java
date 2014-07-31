@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  * Filter, using regular expression to match
- * Replaces * -> . in provided string pattern
+ * Replaces * to . in provided string pattern
  */
 public class StarPatternFilter implements KeyFilter {
     Pattern pattern;

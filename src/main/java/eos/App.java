@@ -5,7 +5,7 @@ import eos.client.CliStream;
 import eos.client.netty.TcpClient;
 import eos.filters.FilterFactory;
 import eos.observers.ObservingPool;
-import eos.observers.SyncronousObservingPool;
+import eos.observers.SynchronousObservingPool;
 import eos.render.out.Console;
 import eos.server.CommonEosController;
 import eos.server.CommonEosRegistry;
@@ -67,7 +67,7 @@ public class App implements Runnable
      * Startup method
      *
      * @param args Command line arguments list
-     * @throws Exception
+     * @throws Exception On any error
      */
     public static void main(String[] args) throws Exception
     {
@@ -95,7 +95,7 @@ public class App implements Runnable
         this.metricRegistry   = new CommonEosRegistry(1000, this.combinator);
 
         // Creating main observer and registering a registry
-        this.observerMaster   = new SyncronousObservingPool();
+        this.observerMaster   = new SynchronousObservingPool();
         this.observerMaster.register(metricRegistry);
         this.observerMaster.register(metricRegistry);
 
