@@ -245,7 +245,7 @@ public class App implements Runnable
     void rest(int port) throws Exception
     {
         stdout.println("Starting REST server");
-        (new Thread(new RestServer("localhost", port, metricRegistry,  metricController, resolver))).start();
+        (new Thread(new RestServer("0.0.0.0", port, metricRegistry,  metricController, resolver))).start();
         stdout.println("REST server listening on " + port);
     }
 
@@ -271,7 +271,7 @@ public class App implements Runnable
     void tcp(int port) throws Exception
     {
         stdout.println("Starting replica TCP listener");
-        (new Thread(new TcpServer("localhost", port, metricRegistry, observerMaster))).start();
+        (new Thread(new TcpServer("0.0.0.0", port, metricRegistry, observerMaster))).start();
         stdout.println("TCP server listening on " + port);
     }
 
