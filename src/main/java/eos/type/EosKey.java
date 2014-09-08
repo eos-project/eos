@@ -9,7 +9,6 @@ public class EosKey
 {
     final String realm;
     final Schema schema;
-    final String key;
     final String[] tags;
 
     final String url;
@@ -28,13 +27,10 @@ public class EosKey
      * @param schema
      *        Entry schema (log, increment, etc.)
      *
-     * @param key
-     *        Name
-     *
      * @param tags
      *        List of tags (one of them can be server name)
      */
-    public EosKey(String realm, Schema schema, String key, String... tags)
+    public EosKey(String realm, Schema schema, String... tags)
     {
         if (realm == null || realm.trim().length() == 0) {
             throw new IllegalArgumentException("Realm cannot be empty");
@@ -43,48 +39,31 @@ public class EosKey
             throw new IllegalArgumentException("Schema cannot be null");
         }
 
-        if (key == null) {
-            throw new IllegalArgumentException("Key cannot be null");
-        }
-
-        if (tags == null) {
-            tags = new String[0];
+        if (tags == null || tags.length == 0) {
+            throw new IllegalArgumentException("Tags cannot be empty");
         } else if (tags.length > 1) {
             Arrays.sort(tags);
         }
 
-        // Validating special characters
-        if (key.contains("@") || key.contains(":")) {
-            throw new IllegalArgumentException("Key cant contain :");
-        }
-
         // Setting
         this.realm  = realm;
-        this.key    = key.toLowerCase();
         this.tags   = tags;
         this.schema = schema;
 
         // Calculating url
-        String url = realm + "+" + schema + "://" + key;
+        String url = realm + "+" + schema + "://";
 
-        for (String t : tags) {
-            if (t.contains(":")) {
-                throw new IllegalArgumentException("Tag cannot contain :");
+        for (int i=0; i < tags.length; i++) {
+            if (i > 0) {
+                url += ":";
             }
-            url += ":" + t;
+            url += tags[i];
         }
+
         this.url = url;
 
         // Calculating hash
         this.hash = this.url.hashCode();
-    }
-
-    /**
-     * @return Inner key
-     */
-    public String getKey()
-    {
-        return key;
     }
 
     /**
@@ -111,32 +90,15 @@ public class EosKey
     }
 
     /**
-     * @return True if current key has tags
-     */
-    public boolean hasTags()
-    {
-        return tags.length > 0;
-    }
-
-    /**
      * @param tag Tag to find
      * @return True if this key has provided tag
      */
     public boolean hasTag(String tag) {
-        if (tag == null || !hasTags()) return false;
         for (String s : tags) {
             if (s.equals(tag)) return true;
         }
 
         return false;
-    }
-
-    /**
-     * @return Returns key without tags
-     */
-    public EosKey withoutTags()
-    {
-        return new EosKey(realm, schema, key);
     }
 
     /**

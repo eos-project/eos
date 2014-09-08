@@ -8,8 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
-    static final Pattern KeySchemaPattern = Pattern.compile("^([a-z0-9\\-_]*)\\+([a-z\\-]*)://([^:@]+)", Pattern.CASE_INSENSITIVE);
-    static final Pattern TagsPattern      = Pattern.compile("([:])([^:/]+)");
+    static final Pattern RegexPattern = Pattern.compile("^([a-z0-9\\-_]*)\\+([a-z\\-]*)://(.+)", Pattern.CASE_INSENSITIVE);
 
     final byte allowedTagsCount;
     final CalculationCache<String, EosKey> resolveCache;
@@ -63,22 +62,16 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
             throw new NullPointerException("Source string is null");
         }
 
-        Matcher matcher = KeySchemaPattern.matcher(source);
+        Matcher matcher = RegexPattern.matcher(source);
         if (!matcher.find()) {
             throw new IllegalArgumentException("Unknown format");
         }
 
         String realm         = matcher.group(1);
         EosKey.Schema schema = EosKey.Schema.valueOf(matcher.group(2));
-        String key           = matcher.group(3);
-        List<String> tags    = new ArrayList<>();
+        String[] tags        = matcher.group(3).split(":");
 
-        matcher = TagsPattern.matcher(source);
-        while (matcher.find()) {
-            tags.add(matcher.group(2));
-        }
-
-        return new EosKey(realm, schema, key, tags.toArray(new String[tags.size()]));
+        return new EosKey(realm, schema, tags);
     }
 
     /**
@@ -102,11 +95,8 @@ public class CachedEosKeyResolver implements EosKeyResolver, EosKeyCombinator{
 
         // Adding combinations
         for (String[] tags : recombine(origin.getTags())) {
-            EosKey newKey = new EosKey(origin.getRealm(), origin.getSchema(), origin.getKey(), tags);
+            EosKey newKey = new EosKey(origin.getRealm(), origin.getSchema(), tags);
             combinations.add(newKey);
-        }
-        if (origin.hasTags()) {
-            combinations.add(origin.withoutTags());
         }
 
         return combinations.toArray(new EosKey[combinations.size()]);

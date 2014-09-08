@@ -37,7 +37,7 @@ public class StringEosControllerAdapterTest
                 @Override
                 public boolean allowed(EosKey key, String nonce, String payload, String signature) {
                     Assert.assertEquals("nonce1", nonce);
-                    Assert.assertEquals("x1+log://test:tag", key.toString());
+                    Assert.assertEquals("x1+log://tag:test", key.toString());
                     Assert.assertEquals("hello", signature);
                     return true;
                 }
@@ -77,7 +77,7 @@ public class StringEosControllerAdapterTest
                     @Override
                     public boolean allowed(EosKey key, String nonce, String payload, String signature) {
                         Assert.assertEquals("foobar", nonce);
-                        Assert.assertEquals("zzz+log://test:tag", key.toString());
+                        Assert.assertEquals("zzz+log://tag:test", key.toString());
                         Assert.assertEquals("hi", signature);
                         return true;
                     }
