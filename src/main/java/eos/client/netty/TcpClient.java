@@ -62,6 +62,7 @@ public class TcpClient implements Runnable
         this.resolver = resolver;
         this.logger   = (Logger) internalMetrics.take(
             new EosKey(
+                "*",
                 EosKey.Schema.log,
                 "eos.core.client.tcp",
                 InetAddress.getLocalHost().getHostName(),

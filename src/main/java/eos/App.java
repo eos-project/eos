@@ -1,11 +1,12 @@
 package eos;
 
-import eos.access.GrantAllTokenRepository;
 import eos.client.CliStream;
 import eos.client.netty.TcpClient;
 import eos.filters.FilterFactory;
 import eos.observers.ObservingPool;
 import eos.observers.SynchronousObservingPool;
+import eos.realm.MemoryHashRealmDescriptor;
+import eos.realm.RealmDescriptor;
 import eos.render.out.Console;
 import eos.server.CommonEosController;
 import eos.server.CommonEosRegistry;
@@ -18,10 +19,9 @@ import eos.type.EosKeyCombinator;
 import eos.type.EosKeyResolver;
 import eos.type.KeyFilter;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 /**
  * Eos startup class
@@ -62,6 +62,11 @@ public class App implements Runnable
      * Eos key combinator
      */
     final EosKeyCombinator combinator;
+    /**
+     * Access control
+     */
+    final MemoryHashRealmDescriptor realms;
+
 
     /**
      * Startup method
@@ -79,7 +84,7 @@ public class App implements Runnable
      *
      * @param arguments Command line arguments
      */
-    private App(List<String> arguments) {
+    private App(List<String> arguments) throws Exception {
         // Copying argument
         this.args   = inflateArguments(arguments);
 
@@ -103,9 +108,34 @@ public class App implements Runnable
         this.metricController = new CommonEosController(
             metricRegistry,
             observerMaster,
-            new GrantAllTokenRepository(),
             true
         );
+
+        // Creating realms
+        realms = new MemoryHashRealmDescriptor();
+
+        // Reading realms from file
+        if (this.args.containsKey("realms")) {
+            Properties properties = new Properties();
+            final FileInputStream in = new FileInputStream(this.args.get("realms"));
+            properties.load(in);
+            in.close();
+
+            for (Object key : properties.keySet()) {
+                realms.put(key.toString(), properties.get(key).toString());
+            }
+        }
+
+        if (realms.size() == 0) {
+            stdout.println("No realms configured");
+            System.exit(5);
+        }
+
+        stdout.println("Supported realms:");
+        for (String key : realms.keySet()) {
+            stdout.println(key);
+        }
+        stdout.println("");
     }
 
     /**
@@ -227,11 +257,11 @@ public class App implements Runnable
                 "",
                 "Commands:",
                 "  --help | -h      displays this message",
-                "  --rest[=port]    starts web server on port " + defaultRestPort,
-                "  --tcp[=port]     starts tcp replica listener on port " + defaultUdpPort,
+//                "  --rest[=port]    starts web server on port " + defaultRestPort,
+//                "  --tcp[=port]     starts tcp replica listener on port " + defaultUdpPort,
                 "  --ws[=port]      starts web socket server on port " + defaultWsPort,
                 "  --udp[=port]     starts udp listener on port " + defaultTcpPort,
-                "  --cli[=filter]   cli streaming",
+//                "  --cli[=filter]   cli streaming",
                 "  --connect=host,port[,filter] connects to tcp replica server"
         });
     }
@@ -244,9 +274,10 @@ public class App implements Runnable
      */
     void rest(int port) throws Exception
     {
-        stdout.println("Starting REST server");
-        (new Thread(new RestServer("0.0.0.0", port, metricRegistry,  metricController, resolver))).start();
-        stdout.println("REST server listening on " + port);
+        stdout.println("REST server disabled due REALM incompatibility");
+//        stdout.println("Starting REST server");
+//        (new Thread(new RestServer("0.0.0.0", port, metricRegistry,  metricController, resolver))).start();
+//        stdout.println("REST server listening on " + port);
     }
 
     /**
@@ -258,7 +289,7 @@ public class App implements Runnable
     void udp(int port) throws Exception
     {
         stdout.println("Starting UDP listener");
-        (new Thread(new UdpServer("0.0.0.0", port, metricRegistry,  metricController, resolver))).start();
+        (new Thread(new UdpServer("0.0.0.0", port, metricRegistry,  metricController, resolver, realms))).start();
         stdout.println("UDP server listening on " + port);
     }
 
@@ -270,9 +301,10 @@ public class App implements Runnable
      */
     void tcp(int port) throws Exception
     {
-        stdout.println("Starting replica TCP listener");
-        (new Thread(new TcpServer("0.0.0.0", port, metricRegistry, observerMaster))).start();
-        stdout.println("TCP server listening on " + port);
+        stdout.println("TCP replica disabled due REALM incompatibility");
+//        stdout.println("Starting replica TCP listener");
+//        (new Thread(new TcpServer("0.0.0.0", port, metricRegistry, observerMaster))).start();
+//        stdout.println("TCP server listening on " + port);
     }
 
     /**
@@ -284,15 +316,16 @@ public class App implements Runnable
     void ws(int port) throws Exception
     {
         stdout.println("Starting web socket server");
-        (new Thread(new WsServer("0.0.0.0", port, metricRegistry, observerMaster))).start();
+        (new Thread(new WsServer("0.0.0.0", port, metricRegistry, realms, observerMaster))).start();
         stdout.println("Web socket server listening on " + port);
     }
 
     void connect(String host, int port, KeyFilter filter) throws Exception
     {
-        stdout.println("Starting replica TCP client");
-        (new Thread(new TcpClient(metricRegistry, observerMaster, host, port, filter, resolver))).start();
-        stdout.println("TCP client online");
+        stdout.println("TCP replica disabled due REALM incompatibility");
+//        stdout.println("Starting replica TCP client");
+//        (new Thread(new TcpClient(metricRegistry, observerMaster, host, port, filter, resolver))).start();
+//        stdout.println("TCP client online");
     }
 
     /**
@@ -302,8 +335,9 @@ public class App implements Runnable
      */
     void cli(KeyFilter filter) throws Exception
     {
-        stdout.println("Starting CLI stream listener");
-        this.observerMaster.register(new CliStream(filter));
+        stdout.println("CLI disabled due REALM incompatibility");
+//        stdout.println("Starting CLI stream listener");
+//        this.observerMaster.register(new CliStream(filter));
     }
 
     /**

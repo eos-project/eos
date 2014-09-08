@@ -42,8 +42,8 @@ public class RestServer implements Runnable
         this.metricController = metricController;
         this.resolver         = resolver;
         // Internal metrics
-        this.logger             = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log, "eos.core.server.rest"));
-        this.restServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.rest.requests"));
+        this.logger             = (Logger) internalMetrics.take(new EosKey("*", EosKey.Schema.log, "eos.core.server.rest"));
+        this.restServerRequests = (LongIncrement) internalMetrics.take(new EosKey("*", EosKey.Schema.inc, "eos.core.server.rest.requests"));
         this.logger.log("New instance of RestServer created");
     }
 
@@ -105,7 +105,7 @@ public class RestServer implements Runnable
                         if ((m = urlGetMetric.matcher(url)).find()) {
                             String metricName = m.group(1);
                             response = new Success(
-                                    metricController.getMetricRead(token, resolver.resolve(metricName)).export()
+                                    metricController.getMetricRead(resolver.resolve(metricName)).export()
                             );
                         } else if ((m = urlGetList.matcher(url)).find()) {
                             String metricPattern = m.group(1);

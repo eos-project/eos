@@ -37,10 +37,10 @@ public class TcpServer implements Runnable
         this.filterFactory = new FilterFactory();
 
         // Internal metrics
-        this.logger = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log, "eos.core.server.tcp"));
+        this.logger = (Logger) internalMetrics.take(new EosKey("*", EosKey.Schema.log, "eos.core.server.tcp"));
 
         // Welcome key
-        this.welcomeKey = new EosKey(EosKey.Schema.log, "eos.core.server.tcp.welcome");
+        this.welcomeKey = new EosKey("*", EosKey.Schema.log, "eos.core.server.tcp.welcome");
 
         this.logger.log("New instance of TcpServer created");
     }

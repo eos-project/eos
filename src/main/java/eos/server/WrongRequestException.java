@@ -5,4 +5,10 @@ package eos.server;
  */
 public class WrongRequestException extends Exception
 {
+    public WrongRequestException() {
+    }
+
+    public WrongRequestException(String message) {
+        super(message);
+    }
 }

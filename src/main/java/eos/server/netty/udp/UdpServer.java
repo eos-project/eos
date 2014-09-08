@@ -2,6 +2,7 @@ package eos.server.netty.udp;
 
 import eos.EosController;
 import eos.EosRegistry;
+import eos.realm.RealmDescriptor;
 import eos.server.StringEosControllerAdapter;
 import eos.type.EosKey;
 import eos.type.EosKeyResolver;
@@ -28,18 +29,19 @@ public class UdpServer implements Runnable
         int port,
         EosRegistry internalMetrics,
         EosController metricController,
-        EosKeyResolver resolver
+        EosKeyResolver resolver,
+        RealmDescriptor descriptor
     ) throws Exception
     {
         this.host             = host;
         this.port             = port;
         // Internal metrics
-        logger            = (Logger) internalMetrics.take(new EosKey(EosKey.Schema.log,"eos.core.server.udp"));
-        udpServerRequests = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.requests"));
-        udpServerFailures = (LongIncrement) internalMetrics.take(new EosKey(EosKey.Schema.inc, "eos.core.server.udp.failures"));
+        logger            = (Logger) internalMetrics.take(new EosKey("*", EosKey.Schema.log,"eos.core.server.udp"));
+        udpServerRequests = (LongIncrement) internalMetrics.take(new EosKey("*", EosKey.Schema.inc, "eos.core.server.udp.requests"));
+        udpServerFailures = (LongIncrement) internalMetrics.take(new EosKey("*", EosKey.Schema.inc, "eos.core.server.udp.failures"));
 
         // Building adapter
-        adapter = new StringEosControllerAdapter(metricController, metricController.getTokenRepository(), resolver);
+        adapter = new StringEosControllerAdapter(metricController, descriptor, resolver);
         this.logger.log("New instance of UdpServer created");
     }
 

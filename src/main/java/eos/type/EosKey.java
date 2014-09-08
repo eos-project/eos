@@ -7,6 +7,7 @@ import java.util.Arrays;
  */
 public class EosKey
 {
+    final String realm;
     final Schema schema;
     final String key;
     final String[] tags;
@@ -21,6 +22,9 @@ public class EosKey
     /**
      * Constructor
      *
+     * @param realm
+     *        Realm to use
+     *
      * @param schema
      *        Entry schema (log, increment, etc.)
      *
@@ -30,8 +34,11 @@ public class EosKey
      * @param tags
      *        List of tags (one of them can be server name)
      */
-    public EosKey(Schema schema, String key, String... tags)
+    public EosKey(String realm, Schema schema, String key, String... tags)
     {
+        if (realm == null || realm.trim().length() == 0) {
+            throw new IllegalArgumentException("Realm cannot be empty");
+        }
         if (schema == null) {
             throw new IllegalArgumentException("Schema cannot be null");
         }
@@ -52,12 +59,13 @@ public class EosKey
         }
 
         // Setting
+        this.realm  = realm;
         this.key    = key.toLowerCase();
         this.tags   = tags;
         this.schema = schema;
 
         // Calculating url
-        String url = schema + "://" + key;
+        String url = realm + "+" + schema + "://" + key;
 
         for (String t : tags) {
             if (t.contains(":")) {
@@ -77,6 +85,14 @@ public class EosKey
     public String getKey()
     {
         return key;
+    }
+
+    /**
+     * @return Realm, this key assigned to
+     */
+    public String getRealm()
+    {
+        return realm;
     }
 
     /**
@@ -120,7 +136,7 @@ public class EosKey
      */
     public EosKey withoutTags()
     {
-        return new EosKey(schema, key);
+        return new EosKey(realm, schema, key);
     }
 
     /**

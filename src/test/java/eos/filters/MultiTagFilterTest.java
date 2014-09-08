@@ -18,10 +18,10 @@ public class MultiTagFilterTest
     public void testLogic()
     {
         EosKey
-            x1 = new EosKey(EosKey.Schema.log, "x"), // No tags
-            x2 = new EosKey(EosKey.Schema.log, "x", "foo"),
-            x3 = new EosKey(EosKey.Schema.log, "x", "bar"),
-            x4 = new EosKey(EosKey.Schema.log, "x", "foo", "bar");
+            x1 = new EosKey("a", EosKey.Schema.log, "x"), // No tags
+            x2 = new EosKey("a", EosKey.Schema.log, "x", "foo"),
+            x3 = new EosKey("a", EosKey.Schema.log, "x", "bar"),
+            x4 = new EosKey("a", EosKey.Schema.log, "x", "foo", "bar");
 
         MultiTagFilter filter;
 
