@@ -1,6 +1,10 @@
 # IDE
-/.idea/
+/.idea
 *.iml
+
+# Dev
+realms.ini
+.DS_Store
 
 # Build and wrappers
 /gradle/
@@ -11,5 +15,7 @@ gradlew*
 .gradletasknamecache
 
 # Temporary
-*.iml
+target/
+release/*
+!release/.gitkeep
 
